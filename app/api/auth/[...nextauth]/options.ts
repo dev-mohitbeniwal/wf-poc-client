@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const BACKEND_URL: string = process.env.NEXT_PUBLIC_BACKEND_URL;
+const BACKEND_URL: string = "http://localhost:8000/api";
 
 export const options: NextAuthOptions = {
   providers: [
@@ -32,17 +32,30 @@ export const options: NextAuthOptions = {
             },
           };
 
-          const response = await axios.post(
-            `${BACKEND_URL}/user/token`,
-            params,
-            config
-          );
+          let access_token: string;
 
-          console.log("Sign in Response: ", response);
+          try {
+              const response = await axios.post(
+                `${BACKEND_URL}/user/token`,
+                params,
+                config
+              );
 
-          if (response.data?.jwt) {
-            Cookies.set("jwt", response.data.jwt);
-            return response.data;
+              access_token = response.data?.access_token;
+              
+              if (!access_token) {
+                return null;
+              }
+
+          } catch(error) {
+            console.error("Error in axios.post: ", error);
+          }
+
+          console.log("Sign in Response: ", access_token);
+
+          if (access_token) {
+            Cookies.set("jwt", access_token);
+            return {jwt: access_token};
           }
 
           return null;
@@ -51,16 +64,16 @@ export const options: NextAuthOptions = {
     }),
   ],
 
-//   callbacks: {
-//     async jwt({ token, account, profile }) {
-//       return token;
-//     },
+  callbacks: {
+    async jwt({ token, account, profile }) {
+      return token;
+    },
 
-//     async session({ session, token, user }) {
-//       session.user = token;
-//       return session;
-//     },
-//   },
+    async session({ session, token, user }) {
+      session.user = token;
+      return session;
+    },
+  },
   pages: {
     signIn: "/auth",
     newUser: "/auth",
