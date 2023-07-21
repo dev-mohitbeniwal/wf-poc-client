@@ -1,6 +1,18 @@
+'use client';
+
 import Image from 'next/image'
+import {useSession} from 'next-auth/react';
 
 export default function Home() {
+
+  const [session, loading] = useSession();
+
+  if(loading) return null;
+
+  if (session) {
+    console.log("Session: ", session);
+  }
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">

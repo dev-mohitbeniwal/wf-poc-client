@@ -2,6 +2,7 @@
 import { useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
+import {signIn} from 'next-auth/react';
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 
@@ -18,24 +19,7 @@ export default function Auth() {
 
     const handleLogin = async(e) => {
         e.preventDefault();
-        try {
-            console.log("Backend URL: ", BACKEND_URL);
-            const params = new URLSearchParams();
-            params.append('username', username);
-            params.append('password', password);
-
-            const config = {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            }
-
-            const response = await axios.post(`${BACKEND_URL}/user/token`, params, config);
-            console.log("Response from /token: ", response);
-            Cookies.set('jwt', response.data.access_token);
-        } catch(error) {
-            console.log("failed to authenticate. Error: ", error);
-        }
+        signIn('credentials', {redirect: false, username, password})
     }
 
     const handleRegister = async(e) => {
