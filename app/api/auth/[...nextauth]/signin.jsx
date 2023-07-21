@@ -2,8 +2,7 @@
 import { useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
-import Input from "../../components/Input";
-import Button from "../../components/Button";
+import { Input, Button } from "@components";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -20,17 +19,7 @@ export default function Auth() {
         e.preventDefault();
         try {
             console.log("Backend URL: ", BACKEND_URL);
-            const params = new URLSearchParams();
-            params.append('username', username);
-            params.append('password', password);
-
-            const config = {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            }
-
-            const response = await axios.post(`${BACKEND_URL}/user/token`, params, config);
+            const response = await axios.post(`${BACKEND_URL}/user/token`, {username, password});
             console.log("Response from /token: ", response);
             Cookies.set('jwt', response.data.access_token);
         } catch(error) {
